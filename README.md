@@ -1,6 +1,7 @@
 
 # Distributed DCX
-Implementation of our lightweight distributed Difference Cover Modulo X (DCX) suffix array construction algorithm.
+Implementation of our lightweight distributed Difference Cover Modulo X (DCX) suffix array construction algorithm as presented in the paper `M. Haag, F. Kurpicz, P. Sanders, and M. Schimek. Fast and Lightweight Distributed Suffix Array Construction` (to appear in the proceedings of ESA 2025).
+If you use this code in the context of an academic publication, we kindly ask you to cite the paper.
 
 ## Compiling
 
