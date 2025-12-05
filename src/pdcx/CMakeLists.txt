@@ -1,5 +1,5 @@
-target_sources(dss_base
-    PUBLIC
+target_sources(DDCX_lib
+        PRIVATE
         pdcx.hpp
         packing.hpp
         difference_cover.hpp

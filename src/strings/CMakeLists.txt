@@ -1,5 +1,5 @@
-target_sources(dss_base
-    PUBLIC
+target_sources(DDCX_lib
+    PRIVATE
         bingmann-lcp_losertree.hpp
         char_container.hpp
         lcp_type.hpp

@@ -1,5 +1,5 @@
-target_sources(dss_base
-    PUBLIC
+target_sources(DDCX_lib
+        PRIVATE
        sample_sort.hpp
        sample_sort_common.hpp
        sample_sort_config.hpp

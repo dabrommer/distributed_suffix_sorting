@@ -14,6 +14,7 @@
 #include <magic_enum/magic_enum.hpp>
 #include <tlx/cmdline_parser.hpp>
 
+#include "../include/dss_interface.hpp"
 #include "CLI_mpi.hpp"
 #include "mpi/io.hpp"
 #include "mpi/reduce.hpp"
@@ -823,7 +824,6 @@ void compute_sa(kamping::Communicator<>& comm, dsss::dcx::PDCXConfig const& pdcx
     compress_alphabet(local_string, comm);
     timer.stop();
 
-
     if (pdcx_config.use_char_packing_merging || pdcx_config.use_char_packing_samples) {
         /*** better variant with packed integers  ***/
         if (pdcx_config.pack_extra_words == 0) {
@@ -902,10 +902,10 @@ void report_memory_usage(kamping::Communicator<>& comm, bool output_rss_from_all
     }
 }
 
-int main(int32_t argc, char const* argv[]) {
+std::vector<dsss::UIntPair<unsigned char>> get_sa(int32_t argc, char const* argv[], kamping::Communicator<> comm) {
     uint64_t max_mem_start = dsss::get_max_mem_bytes();
-    kamping::Environment e;
-    kamping::Communicator comm;
+    //kamping::Environment e;
+    //kamping::Communicator comm;
     kamping::measurements::counter().clear();
     uint64_t max_mem_init = dsss::get_max_mem_bytes();
     kamping::measurements::counter().add("mem_program_start",
@@ -940,7 +940,6 @@ int main(int32_t argc, char const* argv[]) {
                                          dsss::get_max_mem_bytes(),
                                          {kamping::measurements::GlobalAggregationMode::max,
                                           kamping::measurements::GlobalAggregationMode::gather});
-
     compute_sa(comm, params.pdcx_config);
     dcx::get_local_stats_instance().commit();
     dcx::get_local_stats_instance().reset();
@@ -950,7 +949,6 @@ int main(int32_t argc, char const* argv[]) {
                                           kamping::measurements::GlobalAggregationMode::gather});
     report_memory_usage(comm);
     check_sa(comm, params);
-
     kamping::measurements::counter().add("mem_after_sa_check",
                                          dsss::get_max_mem_bytes(),
                                          {kamping::measurements::GlobalAggregationMode::max,
@@ -973,5 +971,6 @@ int main(int32_t argc, char const* argv[]) {
         print_as_jsonlist_to_file({sstream_counter.str()}, params.json_output_path + "_counter.json");
     }
 
-    return 0;
+    return local_sa;
 }
+

@@ -5,11 +5,20 @@ If you use this code in the context of an academic publication, we kindly ask yo
 
 ## Compiling
 
-To compile the code use the following instructions:
+To compile the library use the following instructions:
 ```
-git clone --recursive git@github.com:mschimek/distributed_suffix_sorting.git
-cmake -B release -DCMAKE_BUILD_TYPE=Release -DINCLUDE_ALL_SORTERS=ON -DOPTIMIZE_DATA_TYPES=OFF -DIPS4O_DISABLE_PARALLEL=ON
-cmake --build build --parallel --target cli
+mkdir build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release -DINCLUDE_ALL_SORTERS=ON -DOPTIMIZE_DATA_TYPES=OFF ..
+cmake --build . -j
+cmake --install . --prefix install
+```
+## Use library
+
+To include the built library in your project add the following to your CMakeLists.txt
+```
+set(DDCX_lib_DIR "/path/to/build/install/lib64/cmake/DDCX_lib")
+find_package(DDCX_lib REQUIRED)
+target_link_libraries(MyPorject PRIVATE DDCX_lib::DDCX_lib)
 ```
 
 ## Usage

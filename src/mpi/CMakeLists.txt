@@ -1,5 +1,5 @@
-target_sources(dss_base
-    PUBLIC
+target_sources(DDCX_lib
+        PRIVATE
         alltoall.hpp
         big_type.hpp
         io.hpp
