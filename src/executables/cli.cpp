@@ -58,7 +58,6 @@ auto string_map() -> std::map<std::string, Enum> {
     return result;
 }
 
-
 struct Parameters {
     size_t textsize = 0u;
     size_t alphabet_size = 2u;
@@ -70,7 +69,7 @@ struct Parameters {
     std::string dcx_variant = "dc3";
     std::size_t num_pe = 0u;
     bool check = false;
-    dcx::PDCXConfig pdcx_config;
+    dsss::dcx::PDCXConfig pdcx_config;
 
 
     std::vector<std::pair<std::string, std::string>> config() const {
@@ -131,6 +130,7 @@ std::string splitter_sorting = "Central";
 tlx::CmdlineParser cp;
 std::vector<char_type> local_string;
 std::vector<index_type> local_sa;
+Parameters params;
 
 uint64_t input_alphabet_size = 0;
 
@@ -902,7 +902,7 @@ void report_memory_usage(kamping::Communicator<>& comm, bool output_rss_from_all
     }
 }
 
-std::vector<dsss::UIntPair<unsigned char>> get_sa(int32_t argc, char const* argv[], kamping::Communicator<> comm) {
+std::vector<dsss::UIntPair<unsigned char>>& get_sa(int32_t argc, char const* argv[], kamping::Communicator<> comm) {
     uint64_t max_mem_start = dsss::get_max_mem_bytes();
     //kamping::Environment e;
     //kamping::Communicator comm;
@@ -920,7 +920,7 @@ std::vector<dsss::UIntPair<unsigned char>> get_sa(int32_t argc, char const* argv
     options::report_compile_flags(comm);
 
     // configure_cli();
-    Parameters const params = read_cli_parameters(argc, argv);
+    params = read_cli_parameters(argc, argv);
     // if (!cp.process(argc, argv)) {
     //     return -1;
     // }
@@ -974,3 +974,10 @@ std::vector<dsss::UIntPair<unsigned char>> get_sa(int32_t argc, char const* argv
     return local_sa;
 }
 
+std::vector<char_type>& get_local_string() {
+    return local_string;
+}
+
+size_t get_text_size() {
+    return params.textsize;
+}
