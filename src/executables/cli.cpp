@@ -981,3 +981,7 @@ std::vector<char_type>& get_local_string() {
 size_t get_text_size() {
     return params.textsize;
 }
+
+std::string get_input_path() {
+    return params.input_path;
+}
