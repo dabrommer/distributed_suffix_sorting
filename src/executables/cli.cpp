@@ -101,9 +101,9 @@ struct Parameters {
     }
 };
 
-using char_type = uint8_t;
+// using char_type = uint8_t;
 // using char_type = uint16_t;
-// using char_type = uint32_t;
+using char_type = uint32_t;
 using index_type = uint40;
 
 size_t string_size = {0};
@@ -984,4 +984,66 @@ size_t get_text_size() {
 
 std::string get_input_path() {
     return params.input_path;
+}
+
+std::vector<dsss::UIntPair<unsigned char>>& get_sa(std::vector<uint32_t>& input, kamping::Communicator<>& comm, int32_t argc, char const* argv[]) {
+    uint64_t max_mem_start = dsss::get_max_mem_bytes();
+    params = read_cli_parameters(argc, argv);
+
+    kamping::measurements::counter().clear();
+    uint64_t max_mem_init = dsss::get_max_mem_bytes();
+    kamping::measurements::counter().add("mem_program_start",
+                                         max_mem_start,
+                                         {kamping::measurements::GlobalAggregationMode::max,
+                                          kamping::measurements::GlobalAggregationMode::gather});
+
+    kamping::measurements::counter().add("mem_program_after_init",
+                                         max_mem_init,
+                                         {kamping::measurements::GlobalAggregationMode::max,
+                                          kamping::measurements::GlobalAggregationMode::gather});
+    options::report_compile_flags(comm);
+
+    uint64_t max_mem_before_input = dsss::get_max_mem_bytes();
+    auto& timer = kamping::measurements::timer();
+    timer.clear();
+    kamping::measurements::counter().add("mem_before_reading_input",
+                                         max_mem_before_input,
+                                         {kamping::measurements::GlobalAggregationMode::max,
+                                          kamping::measurements::GlobalAggregationMode::gather});
+    local_string = input;
+    kamping::measurements::counter().add("mem_before_sa_construction",
+                                         dsss::get_max_mem_bytes(),
+                                         {kamping::measurements::GlobalAggregationMode::max,
+                                          kamping::measurements::GlobalAggregationMode::gather});
+    compute_sa(comm, params.pdcx_config);
+    dcx::get_local_stats_instance().commit();
+    dcx::get_local_stats_instance().reset();
+    kamping::measurements::counter().add("mem_after_sa_construction",
+                                         dsss::get_max_mem_bytes(),
+                                         {kamping::measurements::GlobalAggregationMode::max,
+                                          kamping::measurements::GlobalAggregationMode::gather});
+    report_memory_usage(comm);
+    check_sa(comm, params);
+    kamping::measurements::counter().add("mem_after_sa_check",
+                                         dsss::get_max_mem_bytes(),
+                                         {kamping::measurements::GlobalAggregationMode::max,
+                                          kamping::measurements::GlobalAggregationMode::gather});
+
+
+    // print
+    auto config_vector = params.config();
+    std::stringstream sstream_counter;
+    std::stringstream sstream_timer;
+    kamping::measurements::SimpleJsonPrinter<double> printer_timer(sstream_timer, config_vector);
+    kamping::measurements::SimpleJsonPrinter<std::int64_t> printer_counter(sstream_counter,
+                                                                           config_vector);
+    kamping::measurements::timer().aggregate_and_print(printer_timer);
+    kamping::measurements::counter().aggregate_and_print(printer_counter);
+
+    if(comm.rank() == 0) {
+        print_as_jsonlist_to_file({sstream_timer.str()}, params.json_output_path + "_timer.json");
+        print_as_jsonlist_to_file({sstream_counter.str()}, params.json_output_path + "_counter.json");
+    }
+
+    return local_sa;
 }
