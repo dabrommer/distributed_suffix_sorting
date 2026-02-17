@@ -601,6 +601,7 @@ void compress_alphabet(std::vector<char_type>& input, kamping::Communicator<>& c
     uint64_t max_alphabet_size = std::numeric_limits<char_type>::max();
 
     uint64_t max_char = mpi_util::all_reduce_max(input, comm);
+
     if (max_char > max_alphabet_size) {
         kamping::report_on_root(
             "Can only process alphabets with not more than char_type::max distinct "
@@ -608,7 +609,8 @@ void compress_alphabet(std::vector<char_type>& input, kamping::Communicator<>& c
             comm);
         exit(1);
     }
-    input_alphabet_size = alphabet_size;
+    // Assuming that the input chars are in [1, max_char]
+    input_alphabet_size = max_char;
 }
 
 template <typename PDCX, typename char_type, typename index_type>
@@ -725,9 +727,9 @@ void select_dcx_variant(kamping::Communicator<>& comm, dsss::dcx::PDCXConfig con
     //     run_pdcx<PDCX<char_type, index_type, DCXParam>, char_type, index_type>(comm);
     // }
 
-    //using DCXParam = DC39Param;
-    //using PDCXVariant = PDCX<char_type, index_type, DCXParam>;
-    //run_pdcx<PDCXVariant, char_type, index_type>(comm, pdcx_config);
+    using DCXParam = DC39Param;
+    using PDCXVariant = PDCX<char_type, index_type, DCXParam>;
+    run_pdcx<PDCXVariant, char_type, index_type>(comm, pdcx_config);
 }
 
 template <uint64_t EXTRA_WORDS = 0>
